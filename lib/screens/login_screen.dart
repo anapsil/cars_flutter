@@ -1,5 +1,9 @@
-import 'dart:ui';
-
+import 'package:cars_flutter/models/api_response.dart';
+import 'package:cars_flutter/models/user.dart';
+import 'package:cars_flutter/network/login_api.dart';
+import 'package:cars_flutter/screens/home_screen.dart';
+import 'package:cars_flutter/utils/alert.dart';
+import 'package:cars_flutter/utils/nav.dart';
 import 'package:cars_flutter/widgets/app_button.dart';
 import 'package:cars_flutter/widgets/app_text_field.dart';
 import 'package:flutter/material.dart';
@@ -11,12 +15,10 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-
   final _loginController = TextEditingController();
-
   final _senhaController = TextEditingController();
-
   final _focusPassword = FocusNode();
+  bool _showProgress = false;
 
   @override
   Widget build(BuildContext context) {
@@ -49,13 +51,13 @@ class _LoginScreenState extends State<LoginScreen> {
             focusNode: _focusPassword,
           ),
           SizedBox(height: 16),
-          AppButton("Login", onPressed: _onClickLogin)
+          AppButton("Login", onPressed: _onClickLogin, showProgress: _showProgress,)
         ],
       ),
     );
   }
 
-  _onClickLogin() {
+  _onClickLogin() async {
     bool formValid = _formKey.currentState.validate();
 
     if (!formValid) {
@@ -63,9 +65,23 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     String login = _loginController.text;
-    String senha = _senhaController.text;
+    String password = _senhaController.text;
 
-    print("Login: $login, Senha: $senha");
+    setState(() {
+      _showProgress = true;
+    });
+
+    final ApiResponse response = await LoginApi.login(login, password);
+
+    if (response.success) {
+      push(context, HomeScreen(response.result as User), replace: true);
+    } else {
+      alert(context, response.msg);
+    }
+
+    setState(() {
+      _showProgress = false;
+    });
   }
 
   String _validateLogin(String value) {
