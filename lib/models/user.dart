@@ -1,3 +1,7 @@
+import 'dart:convert' as convert;
+
+import 'package:cars_flutter/utils/prefs.dart';
+
 class User {
   int id;
   String login;
@@ -7,14 +11,42 @@ class User {
   String token;
   List<String> roles;
 
-  User.fromJson(Map<String, dynamic> map)
-      : id = map["id"],
-        login = map["login"],
-        nome = map["nome"],
-        email = map["email"],
-        urlFoto = map["urlFoto"],
-        token = map["token"],
-        roles = map["roles"] != null ? map["roles"].map<String>((role) => role.toString()).toList() : null;
+  User({this.id, this.login, this.nome, this.email, this.urlFoto, this.token, this.roles});
+
+  User.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    login = json['login'];
+    nome = json['nome'];
+    email = json['email'];
+    urlFoto = json['urlFoto'];
+    token = json['token'];
+    roles = json['roles'].cast<String>();
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['id'] = this.id;
+    data['login'] = this.login;
+    data['nome'] = this.nome;
+    data['email'] = this.email;
+    data['urlFoto'] = this.urlFoto;
+    data['token'] = this.token;
+    data['roles'] = this.roles;
+    return data;
+  }
+
+  void save() {
+    Map map = toJson();
+    String json = convert.json.encode(map);
+    Prefs.setString("user.prefs", json);
+  }
+
+  static Future<User> get() async {
+    String json = await Prefs.getString("user.prefs");
+
+    Map map = convert.json.decode(json);
+    return User.fromJson(map);
+  }
 
   @override
   String toString() {
