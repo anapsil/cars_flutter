@@ -6,10 +6,6 @@ import 'package:cars_flutter/widgets/drawer_list.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
-  User currentUser;
-
-  HomeScreen(this.currentUser);
-
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -64,7 +60,13 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           CarsListView(CarType.luxo),
         ],
       ),
-      drawer: DrawerList(widget.currentUser),
+      drawer: FutureBuilder(
+        future: User.get(),
+        builder: (context, snapshot) {
+          User user = snapshot.data;
+          return user != null ? DrawerList(user) : Container();
+        },
+      ),
     );
   }
 }

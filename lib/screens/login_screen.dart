@@ -1,5 +1,4 @@
 import 'package:cars_flutter/models/api_response.dart';
-import 'package:cars_flutter/models/user.dart';
 import 'package:cars_flutter/network/login_api.dart';
 import 'package:cars_flutter/screens/home_screen.dart';
 import 'package:cars_flutter/utils/alert.dart';
@@ -51,7 +50,11 @@ class _LoginScreenState extends State<LoginScreen> {
             focusNode: _focusPassword,
           ),
           SizedBox(height: 16),
-          AppButton("Login", onPressed: _onClickLogin, showProgress: _showProgress,)
+          AppButton(
+            "Login",
+            onPressed: _onClickLogin,
+            showProgress: _showProgress,
+          )
         ],
       ),
     );
@@ -74,7 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final ApiResponse response = await LoginApi.login(login, password);
 
     if (response.success) {
-      push(context, HomeScreen(response.result as User), replace: true);
+      push(context, HomeScreen(), replace: true);
     } else {
       alert(context, response.msg);
     }
