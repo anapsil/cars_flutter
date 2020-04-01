@@ -1,4 +1,5 @@
 import 'package:cars_flutter/models/api_response.dart';
+import 'package:cars_flutter/models/user.dart';
 import 'package:cars_flutter/network/login_api.dart';
 import 'package:cars_flutter/screens/home_screen.dart';
 import 'package:cars_flutter/utils/alert.dart';
@@ -18,6 +19,18 @@ class _LoginScreenState extends State<LoginScreen> {
   final _senhaController = TextEditingController();
   final _focusPassword = FocusNode();
   bool _showProgress = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    Future<User> future = User.get();
+    future.then((user) {
+      if (user != null) {
+        push(context, HomeScreen(), replace: true);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,21 +53,14 @@ class _LoginScreenState extends State<LoginScreen> {
               textInputAction: TextInputAction.next,
               nextFocus: _focusPassword),
           SizedBox(height: 16),
-          AppTextField(
-            "Senha",
-            "Digite a senha",
-            password: true,
-            controller: _senhaController,
-            validator: _validatePassword,
-            keyboardType: TextInputType.number,
-            focusNode: _focusPassword,
-          ),
+          AppTextField("Senha", "Digite a senha",
+              password: true,
+              controller: _senhaController,
+              validator: _validatePassword,
+              keyboardType: TextInputType.number,
+              focusNode: _focusPassword),
           SizedBox(height: 16),
-          AppButton(
-            "Login",
-            onPressed: _onClickLogin,
-            showProgress: _showProgress,
-          )
+          AppButton("Login", onPressed: _onClickLogin, showProgress: _showProgress)
         ],
       ),
     );
