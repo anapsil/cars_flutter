@@ -1,5 +1,7 @@
+import 'package:cars_flutter/bloc/cars_bloc.dart';
 import 'package:cars_flutter/models/car.dart';
-import 'package:cars_flutter/network/cars_api.dart';
+import 'package:cars_flutter/screens/car_screen.dart';
+import 'package:cars_flutter/utils/nav.dart';
 import 'package:flutter/material.dart';
 
 class CarsListView extends StatefulWidget {
@@ -12,16 +14,27 @@ class CarsListView extends StatefulWidget {
 }
 
 class _CarsListViewState extends State<CarsListView> with AutomaticKeepAliveClientMixin<CarsListView> {
+  List<Car> cars;
+  final CarsBloc _bloc = CarsBloc();
+
+  @override
+  void initState() {
+    super.initState();
+    _bloc.loadCars(widget.type);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _bloc.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return _body();
-  }
 
-  _body() {
-    Future<List<Car>> future = CarsApi.getCars(widget.type);
-    return FutureBuilder(
-      future: future,
+    return StreamBuilder(
+      stream: _bloc.stream,
       builder: (BuildContext context, AsyncSnapshot snapshot) {
         if (snapshot.hasError) {
           return Center(
@@ -62,9 +75,9 @@ class _CarsListViewState extends State<CarsListView> with AutomaticKeepAliveClie
                   children: <Widget>[
                     Center(
                         child: Image.network(
-                      car.urlFoto ?? "http://www.livroandroid.com.br/livro/carros/classicos/Camaro_SS.png",
-                      width: 250,
-                    )),
+                          car.urlFoto ?? "http://www.livroandroid.com.br/livro/carros/classicos/Camaro_SS.png",
+                          width: 250,
+                        )),
                     Text(
                       car.nome ?? "",
                       maxLines: 1,
@@ -79,15 +92,11 @@ class _CarsListViewState extends State<CarsListView> with AutomaticKeepAliveClie
                       children: <Widget>[
                         FlatButton(
                           child: const Text('DETALHES'),
-                          onPressed: () {
-                            /* ... */
-                          },
+                          onPressed: () => _onClickCar(car),
                         ),
                         FlatButton(
                           child: const Text('SHARE'),
-                          onPressed: () {
-                            /* ... */
-                          },
+                          onPressed: () {},
                         ),
                       ],
                     ),
@@ -101,4 +110,8 @@ class _CarsListViewState extends State<CarsListView> with AutomaticKeepAliveClie
 
   @override
   bool get wantKeepAlive => true;
+
+  _onClickCar(Car car) {
+    push(context, CarScreen(car));
+  }
 }
