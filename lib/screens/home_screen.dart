@@ -1,7 +1,7 @@
 import 'package:cars_flutter/models/user.dart';
 import 'package:cars_flutter/network/cars_api.dart';
 import 'package:cars_flutter/utils/prefs.dart';
-import 'package:cars_flutter/widgets/cars_listview.dart';
+import 'package:cars_flutter/widgets/cars_page.dart';
 import 'package:cars_flutter/widgets/drawer_list.dart';
 import 'package:flutter/material.dart';
 
@@ -55,9 +55,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           : TabBarView(
         controller: _tabController,
         children: [
-          CarsListView(CarType.classicos),
-          CarsListView(CarType.esportivos),
-          CarsListView(CarType.luxo),
+          CarsPage(CarType.classicos),
+          CarsPage(CarType.esportivos),
+          CarsPage(CarType.luxo),
         ],
       ),
       drawer: FutureBuilder(

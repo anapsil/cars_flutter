@@ -1,6 +1,8 @@
+import 'dart:async';
+
+import 'package:cars_flutter/bloc/login_bloc.dart';
 import 'package:cars_flutter/models/api_response.dart';
 import 'package:cars_flutter/models/user.dart';
-import 'package:cars_flutter/network/login_api.dart';
 import 'package:cars_flutter/screens/home_screen.dart';
 import 'package:cars_flutter/utils/alert.dart';
 import 'package:cars_flutter/utils/nav.dart';
@@ -18,7 +20,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _loginController = TextEditingController();
   final _senhaController = TextEditingController();
   final _focusPassword = FocusNode();
-  bool _showProgress = false;
+  final _bloc = LoginBloc();
 
   @override
   void initState() {
@@ -30,6 +32,12 @@ class _LoginScreenState extends State<LoginScreen> {
         push(context, HomeScreen(), replace: true);
       }
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _bloc.dispose();
   }
 
   @override
@@ -60,7 +68,16 @@ class _LoginScreenState extends State<LoginScreen> {
               keyboardType: TextInputType.number,
               focusNode: _focusPassword),
           SizedBox(height: 16),
-          AppButton("Login", onPressed: _onClickLogin, showProgress: _showProgress)
+          StreamBuilder<bool>(
+              stream: _bloc.stream,
+              initialData: false,
+              builder: (context, snapshot) {
+                return AppButton(
+                  "Login",
+                  onPressed: _onClickLogin,
+                  showProgress: snapshot.data,
+                );
+              })
         ],
       ),
     );
@@ -76,21 +93,13 @@ class _LoginScreenState extends State<LoginScreen> {
     String login = _loginController.text;
     String password = _senhaController.text;
 
-    setState(() {
-      _showProgress = true;
-    });
-
-    final ApiResponse response = await LoginApi.login(login, password);
+    final ApiResponse response = await _bloc.login(login, password);
 
     if (response.success) {
       push(context, HomeScreen(), replace: true);
     } else {
       alert(context, response.msg);
     }
-
-    setState(() {
-      _showProgress = false;
-    });
   }
 
   String _validateLogin(String value) {
